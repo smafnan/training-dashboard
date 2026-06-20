@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "training-dashboard"
+version = "1.0.0"
+description = "Experiment tracking (TensorBoard) and a learning-rate ablation over a small MLP."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "smafnan", email = "smafnan5@gmail.com" }]
+dependencies = [
+    "torch>=2.1",
+    "tensorboard>=2.14",
+    "scikit-learn>=1.3",
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

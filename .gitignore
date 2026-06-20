@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# TensorBoard event logs (regenerate with `python run_ablation.py`)
+runs/
+
+# Figures + ablation JSON ARE committed so results render on GitHub.
