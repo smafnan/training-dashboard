@@ -16,4 +16,8 @@ Thumbs.db
 # TensorBoard event logs (regenerate with `python run_ablation.py`)
 runs/
 
+# Frontend deps (web/dist IS committed so the app runs from a clone)
+web/node_modules/
+web/.vite/
+
 # Figures + ablation JSON ARE committed so results render on GitHub.

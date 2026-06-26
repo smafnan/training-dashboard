@@ -26,6 +26,24 @@ logs to `runs/` for TensorBoard, and static comparison figures land in `reports/
 
 ---
 
+## 🖥️ Web UI (React + Tailwind + FastAPI)
+
+An interactive dashboard ships with the project: pick the optimizer, learning
+rate, and epochs, hit **Train**, and watch the **loss curve** and **validation
+accuracy** draw live (the MLP trains in a couple of seconds). Hit **Run ablation**
+to overlay several learning rates and see a too-high one flatline near 10% — the
+signature of divergence.
+
+```bash
+pip install -e ".[web]"
+uvicorn api:app --reload          # open http://localhost:8000
+
+# (optional) rebuild / develop the frontend:
+cd web && npm install && npm run build
+```
+
+The committed `web/dist` means `uvicorn api:app` works straight from a clone.
+
 ## The ablation: learning rate (the "Done when")
 
 Five SGD+momentum runs, identical except for the learning rate, 40 epochs each:
