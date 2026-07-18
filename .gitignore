@@ -19,5 +19,14 @@ runs/
 # Frontend deps (web/dist IS committed so the app runs from a clone)
 web/node_modules/
 web/.vite/
+*.tsbuildinfo
 
 # Figures + ablation JSON ARE committed so results render on GitHub.
+
+# Env / secrets
+.env
+.env.local
+
+# Caches
+.mypy_cache/
+.ruff_cache/
