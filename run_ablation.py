@@ -27,7 +27,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from src.dashboard import ExperimentConfig, run_experiment
+from dashboard import ExperimentConfig, run_experiment
 
 # The ablation grids: each maps a run name -> the field override(s).
 ABLATIONS = {

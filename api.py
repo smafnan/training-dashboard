@@ -9,27 +9,38 @@ Run:  uvicorn api:app --reload  →  http://localhost:8000
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.dashboard import ExperimentConfig, run_experiment
+from dashboard import ExperimentConfig, run_experiment
 
 ROOT = Path(__file__).resolve().parent
 
+# Allowlist of origins the frontend is served from; override with a comma-separated
+# ALLOWED_ORIGINS env var for non-local deployments. Local dev works with no env set.
+_DEFAULT_ORIGINS = "http://localhost:5173,http://localhost:8000"
+_allowed_origins = [
+    o.strip()
+    for o in os.environ.get("ALLOWED_ORIGINS", _DEFAULT_ORIGINS).split(",")
+    if o.strip()
+]
+
 app = FastAPI(title="Training Dashboard API", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"],
+app.add_middleware(CORSMiddleware, allow_origins=_allowed_origins, allow_methods=["*"],
                    allow_headers=["*"])
 
 
 class TrainRequest(BaseModel):
-    optimizer: str = "sgd_momentum"   # adam | sgd | sgd_momentum
+    optimizer: Literal["adam", "sgd", "sgd_momentum"] = "sgd_momentum"
     lr: float = 0.1
     epochs: int = 30
-    batch_size: int = 64
+    batch_size: int = Field(default=64, gt=0, le=1024)
 
 
 def _history(cfg: ExperimentConfig) -> dict:
@@ -49,7 +60,10 @@ def train(req: TrainRequest):
         name="ui", optimizer=req.optimizer, lr=req.lr,
         epochs=max(1, min(req.epochs, 60)), batch_size=req.batch_size,
     )
-    return _history(cfg)
+    try:
+        return _history(cfg)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/ablation")

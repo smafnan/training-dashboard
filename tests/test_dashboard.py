@@ -45,7 +45,7 @@ def test_too_high_lr_diverges(tmp_path):
     good = ExperimentConfig(name="good", optimizer="sgd_momentum", lr=3e-2, epochs=15)
     hb = run_experiment(bad, log_root=tmp_path, write_tb=False)
     hg = run_experiment(good, log_root=tmp_path, write_tb=False)
-    best_bad = max(hg["val_acc"]) if False else max(hb["val_acc"], default=0.0)
+    best_bad = max(hb["val_acc"], default=0.0)
     # The diverging run is clearly worse than the well-tuned one.
     assert best_bad < max(hg["val_acc"]) - 0.2
 

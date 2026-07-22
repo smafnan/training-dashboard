@@ -91,7 +91,7 @@ python run_ablation.py --ablation optimizer # bonus: SGD vs momentum vs Adam
 python run_ablation.py --ablation batch_size
 
 tensorboard --logdir runs                   # interactive dashboard @ localhost:6006
-pytest -q                                   # 6 tests
+pytest -q                                   # 9 tests
 ```
 
 Everything runs in seconds on CPU (scikit-learn digits, no download). Each run logs to `runs/` for
@@ -110,6 +110,15 @@ cd web && npm install && npm run build
 The committed `web/dist` means `uvicorn api:app` works straight from a clone, with no `npm` step
 required. Run `uvicorn` from the repo root — `api.py` resolves `web/dist` and the `dashboard`
 package relative to the working directory.
+
+**CORS**: the API allows `http://localhost:5173` (Vite dev server) and `http://localhost:8000`
+(the API itself) by default, so local dev works with no configuration. To allow other origins
+(e.g. a deployed frontend), set `ALLOWED_ORIGINS` to a comma-separated list before starting the
+server:
+
+```bash
+ALLOWED_ORIGINS="https://my-frontend.example.com,http://localhost:5173" uvicorn api:app
+```
 
 ## What gets tracked
 
@@ -139,7 +148,8 @@ training-dashboard/
 │   ├── model.py                # Small configurable MLP
 │   └── experiment.py           # ExperimentConfig + run_experiment (TensorBoard logging)
 ├── tests/
-│   └── test_dashboard.py     # 6 unit tests: shapes, learning, divergence, TB event files
+│   ├── test_dashboard.py     # 6 unit tests: shapes, learning, divergence, TB event files
+│   └── test_api.py           # 3 tests: /api/train happy path + bad optimizer/batch_size → 422
 ├── reports/
 │   ├── ablation_lr.png       # Committed comparison figure (learning-rate ablation)
 │   └── ablation_lr.json      # Committed numeric summary
@@ -167,26 +177,17 @@ training-dashboard/
 
 ## Limitations
 
-- The web API does not validate its inputs: an unrecognized `optimizer` string reaches an unguarded
-  `raise ValueError` and surfaces as an HTTP 500, not a 4xx; `batch_size` is not bounds-checked
-  (only `epochs` is clamped to 1–60).
-- CORS on the FastAPI app is wide open (`allow_origins=["*"]`), left over from local development;
-  harmless for a localhost teaching tool but not hardened for any wider deployment.
-- No CI pipeline — tests and the frontend type-check (`tsc -b`) only run if you run them locally.
-- The FastAPI routes themselves have no test coverage; the 6 unit tests cover the core
-  `src/dashboard` training/ablation logic only.
 - The web UI trains synchronously per request and keeps no history — each "Train" click discards
   the previous run's chart.
+- The `/api/ablation` route still has no dedicated test coverage; `/api/train` is covered by
+  `tests/test_api.py`.
 - This is a teaching project, not a benchmark: the MLP and dataset are intentionally tiny so
   everything trains in seconds on CPU.
 
 ## Roadmap
 
-- Validate/clamp API inputs and return proper 4xx errors for bad requests.
-- Add a GitHub Actions CI workflow (`pytest -q`, `cd web && npm ci && npm run build`).
-- Add `TestClient`-based tests for `/api/train` and `/api/ablation`.
+- Add `TestClient`-based tests for `/api/ablation`.
 - Let the web UI keep and compare multiple trained runs instead of discarding the previous one.
-- Scope CORS to specific origins if this is ever deployed beyond localhost.
 
 ## License
 
