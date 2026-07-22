@@ -29,5 +29,5 @@ where = ["src"]
 dashboard = ["py.typed"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 testpaths = ["tests"]
